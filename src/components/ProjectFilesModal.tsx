@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ProjectFile } from '../types';
 import JSZip from 'jszip';
-import { GeminiSparkle } from './GeminiSparkle';
+import { ComplexityPrism } from './ComplexityPrism';
 import {
   X,
   Plus,
@@ -157,7 +157,7 @@ export const ProjectFilesModal: React.FC<ProjectFilesModalProps> = ({
     const url = URL.createObjectURL(content);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `gemini-project-${Date.now()}.zip`;
+    a.download = `complexity-project-${Date.now()}.zip`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -166,14 +166,14 @@ export const ProjectFilesModal: React.FC<ProjectFilesModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-3 sm:p-4 backdrop-blur-xs">
-      <div className="w-full max-w-4xl h-[85vh] flex flex-col rounded-3xl bg-[#1e1f20] border border-[#3c4043] shadow-2xl overflow-hidden text-[#e3e3e3]">
+      <div className="w-full max-w-4xl h-[85vh] flex flex-col rounded-xl bg-zinc-900 border border-zinc-800 shadow-2xl overflow-hidden text-zinc-200">
         {/* Modal Header */}
-        <div className="p-3.5 border-b border-[#3c4043]/60 flex items-center justify-between shrink-0 bg-[#1e1f20]">
+        <div className="p-3.5 border-b border-zinc-800 flex items-center justify-between shrink-0 bg-zinc-900">
           <div className="flex items-center gap-2.5">
-            <GeminiSparkle className="w-5 h-5" />
+            <ComplexityPrism className="w-5 h-5" size={20} />
             <div>
-              <h2 className="text-sm font-semibold text-white">Gemini Code Workspace</h2>
-              <p className="text-[11px] text-[#8e918f]">Offline files attached to conversation context</p>
+              <h2 className="text-sm font-semibold text-zinc-100">Complexity Workspace Files</h2>
+              <p className="text-[11px] text-zinc-400">Offline files attached to conversation context</p>
             </div>
           </div>
 

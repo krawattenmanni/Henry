@@ -6,18 +6,15 @@ export const OfflineIndicator: React.FC = () => {
   const isOnline = useOnlineStatus();
 
   return (
-    <div className="flex items-center gap-1.5 text-xs text-[#c4c7c5]">
-      {isOnline ? (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1e1f20] border border-[#3c4043] text-[#a8c7fa] text-[11px] font-medium shadow-xs">
-          <Globe className="w-3 h-3 text-[#4285F4] animate-pulse" />
-          <span>Online & Search</span>
-        </span>
-      ) : (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#282a2c] border border-purple-500/40 text-purple-300 text-[11px] font-medium shadow-xs">
-          <WifiOff className="w-3 h-3 text-purple-400" />
-          <span>Offline Ready</span>
-        </span>
-      )}
+    <div className="flex items-center gap-1.5 text-xs text-zinc-400 select-none px-1" title={isOnline ? 'Connected to internet & Google Search' : 'Offline Mode active'}>
+      <span
+        className={`w-2 h-2 rounded-full ${
+          isOnline ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]' : 'bg-amber-400'
+        }`}
+      />
+      <span className="text-[11px] font-mono text-zinc-400 hidden md:inline">
+        {isOnline ? 'Online' : 'Offline'}
+      </span>
     </div>
   );
 };

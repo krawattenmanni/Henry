@@ -1,8 +1,31 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { ArrowUp, Square, Paperclip, X, Code2 } from 'lucide-react';
+import { ArrowUp, Square, Paperclip, X, Code2, Globe, Gamepad2, Compass, Zap } from 'lucide-react';
 import { MobileCodeToolbar } from './MobileCodeToolbar';
 import { ProjectFile } from '../types';
 import { triggerHaptic } from '../services/storage';
+
+const INPUT_QUICK_ACTIONS = [
+  {
+    label: 'Web Research',
+    icon: Globe,
+    prompt: 'Search the web for the latest breakthroughs in renewable energy and solid-state batteries, with cited sources.',
+  },
+  {
+    label: 'Bedrock Addon',
+    icon: Gamepad2,
+    prompt: 'Make a Minecraft Bedrock addon mod with a custom Ruby Sword, behavior pack manifest, and crafting recipe.',
+  },
+  {
+    label: 'HTML5 Canvas App',
+    icon: Code2,
+    prompt: 'Build an interactive HTML5 Canvas particle physics simulation with mouse and touch controls.',
+  },
+  {
+    label: 'Deep Explain',
+    icon: Compass,
+    prompt: 'Explain how transformer neural networks and attention mechanisms work with clear examples.',
+  },
+];
 
 interface ChatInputProps {
   onSendMessage: (text: string, attachedFileIds: string[]) => void;
@@ -77,26 +100,52 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   const estimatedTokens = Math.ceil(text.length / 4);
 
   return (
-    <div className="w-full bg-[#131314] px-3 sm:px-6 pb-3 pt-1">
+    <div className="w-full bg-[#0c0d12] px-3 sm:px-6 pb-3 pt-1">
       <div className="max-w-4xl mx-auto space-y-2">
+        {/* Quick Actions Bar */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+          <span className="inline-flex items-center gap-1 text-[11px] font-mono text-zinc-500 shrink-0 pr-1">
+            <Zap className="w-3 h-3 text-cyan-400" />
+            <span>Quick Actions:</span>
+          </span>
+          {INPUT_QUICK_ACTIONS.map((item, idx) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={idx}
+                type="button"
+                disabled={isGenerating}
+                onClick={() => {
+                  triggerHaptic(12);
+                  onSendMessage(item.prompt, selectedFileIds);
+                }}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-xs font-medium text-zinc-300 hover:text-zinc-100 transition shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Icon className="w-3 h-3 text-cyan-400 shrink-0" />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
         {/* Selected Workspace Files Attached as Context */}
         {selectedFileIds.length > 0 && (
-          <div className="flex items-center gap-1.5 px-3 flex-wrap">
-            <span className="text-[10px] text-[#8e918f] uppercase font-mono">Attached Context:</span>
+          <div className="flex items-center gap-2 px-1 flex-wrap text-xs text-zinc-400">
+            <span className="font-mono text-[11px] uppercase text-zinc-500">Context:</span>
             {selectedFileIds.map((id) => {
               const file = projectFiles.find((f) => f.id === id);
               if (!file) return null;
               return (
                 <span
                   key={id}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#1e1f20] border border-[#3c4043] text-[#a8c7fa] text-xs font-mono"
+                  className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-zinc-800/80 border border-zinc-700/60 text-zinc-200 text-xs font-mono"
                 >
-                  <Code2 className="w-3 h-3 text-[#4285F4]" />
+                  <Code2 className="w-3.5 h-3.5 text-cyan-400" />
                   <span>{file.name}</span>
                   <button
                     type="button"
                     onClick={() => toggleFileAttachment(id)}
-                    className="hover:text-white"
+                    className="hover:text-white ml-0.5"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -106,22 +155,22 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           </div>
         )}
 
-        {/* Gemini Floating Rounded-3xl Input Box */}
-        <div className="relative rounded-3xl bg-[#1e1f20] border border-[#3c4043] focus-within:border-[#52565a] transition-all shadow-md overflow-hidden">
+        {/* Complexity Engineered Input Box */}
+        <div className="relative rounded-xl bg-zinc-900 border border-zinc-800 focus-within:border-zinc-600 transition-colors shadow-sm overflow-hidden">
           {/* Mobile Code Quick Keys Bar */}
           {showDevToolbar && (
             <MobileCodeToolbar onInsertSymbol={handleInsertSymbol} hapticEnabled={true} />
           )}
 
-          <form onSubmit={handleSubmit} className="p-2 sm:p-3">
+          <form onSubmit={handleSubmit} className="p-2 sm:p-2.5">
             <textarea
               ref={textareaRef}
               rows={1}
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask Gemini anything, chat, or generate code offline..."
-              className="w-full bg-transparent text-[#e3e3e3] placeholder-[#8e918f] text-sm focus:outline-none resize-none px-3 py-1.5 max-h-48 min-h-[44px] leading-relaxed select-text"
+              placeholder="Message Complexity, build a Minecraft Bedrock addon, or search the web..."
+              className="w-full bg-transparent text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none resize-none px-2.5 py-1.5 max-h-48 min-h-[44px] leading-relaxed select-text"
             />
 
             <div className="flex items-center justify-between pt-1 px-1">
@@ -133,10 +182,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                     onClick={() => {
                       if (projectFiles[0]) toggleFileAttachment(projectFiles[0].id);
                     }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs transition ${
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition ${
                       selectedFileIds.length > 0
-                        ? 'bg-[#282a2c] text-[#a8c7fa] border border-[#4285F4]/40'
-                        : 'text-[#c4c7c5] hover:text-white hover:bg-[#282a2c]'
+                        ? 'bg-zinc-800 text-cyan-400 border border-zinc-700'
+                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
                     }`}
                     title="Attach workspace file"
                   >
@@ -146,7 +195,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 )}
 
                 {text.length > 0 && (
-                  <span className="text-[11px] font-mono text-[#8e918f] select-none pl-1">
+                  <span className="text-[11px] font-mono text-zinc-500 select-none pl-1">
                     ~{estimatedTokens} tokens
                   </span>
                 )}
@@ -158,7 +207,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                   <button
                     type="button"
                     onClick={() => { triggerHaptic(15); onStopGeneration(); }}
-                    className="flex items-center justify-center w-8 h-8 rounded-full bg-[#282a2c] hover:bg-[#37393b] text-white transition active:scale-95"
+                    className="flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition active:scale-95"
                     title="Stop generation"
                   >
                     <Square className="w-3.5 h-3.5 fill-current" />
@@ -167,10 +216,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                   <button
                     type="submit"
                     disabled={!text.trim()}
-                    className={`flex items-center justify-center w-8 h-8 rounded-full transition ${
+                    className={`flex items-center justify-center w-8 h-8 rounded-lg transition ${
                       text.trim()
-                        ? 'bg-gradient-to-r from-[#4285F4] to-[#9B72CF] text-white shadow-xs active:scale-95'
-                        : 'bg-[#282a2c] text-[#52565a] cursor-not-allowed'
+                        ? 'bg-zinc-100 hover:bg-white text-zinc-900 shadow-sm active:scale-95'
+                        : 'bg-zinc-800/60 text-zinc-600 cursor-not-allowed'
                     }`}
                     title="Send message"
                   >
@@ -182,9 +231,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           </form>
         </div>
 
-        <div className="text-center">
-          <p className="text-[10px] text-[#8e918f]">
-            Gemini Local runs 100% on-device in your Android browser sandbox.
+        <div className="text-center pt-0.5">
+          <p className="text-[11px] text-zinc-500">
+            Complexity Studio · Grounded research, game modding, & interactive canvas
           </p>
         </div>
       </div>

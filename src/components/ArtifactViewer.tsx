@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CodeArtifact } from '../types';
-import { GeminiSparkle } from './GeminiSparkle';
+import { ComplexityPrism } from './ComplexityPrism';
 import {
   Play,
   Code2,
@@ -148,27 +148,27 @@ export const ArtifactViewer: React.FC<ArtifactViewerProps> = ({
           : 'relative w-full h-full border-l'
       }`}
     >
-      {/* Top Bar (Gemini Canvas Header) */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-[#1e1f20] border-b border-[#3c4043]/50 shrink-0">
+      {/* Top Bar (Complexity Canvas Header) */}
+      <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900 border-b border-zinc-800 shrink-0">
         <div className="flex items-center gap-2.5 min-w-0">
-          <GeminiSparkle className="w-4 h-4 shrink-0" />
+          <ComplexityPrism className="w-4 h-4 shrink-0" size={18} />
           <div className="truncate">
-            <h3 className="text-xs font-semibold text-white truncate">{artifact.title}</h3>
-            <span className="text-[10px] text-[#8e918f] uppercase font-mono tracking-wider">
-              {artifact.language} · Gemini Canvas
+            <h3 className="text-xs font-semibold text-zinc-100 truncate">{artifact.title}</h3>
+            <span className="text-[10px] text-zinc-400 font-mono">
+              {artifact.language} · Complexity Canvas
             </span>
           </div>
         </div>
 
-        {/* View Tabs */}
-        <div className="flex items-center gap-1 bg-[#131314] p-1 rounded-full border border-[#3c4043]/60">
+        {/* View Tabs - Clean segmented control */}
+        <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-lg border border-zinc-800">
           {(artifact.type === 'html-preview' || artifact.type === 'svg') && (
             <button
               onClick={() => { triggerHaptic(10); setActiveTab('preview'); }}
-              className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full transition ${
+              className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition ${
                 activeTab === 'preview'
-                  ? 'bg-gradient-to-r from-[#4285F4] to-[#9B72CF] text-white shadow-xs'
-                  : 'text-[#8e918f] hover:text-[#e3e3e3]'
+                  ? 'bg-zinc-800 text-zinc-100 shadow-sm'
+                  : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               <Play className="w-3 h-3 fill-current" />
@@ -178,10 +178,10 @@ export const ArtifactViewer: React.FC<ArtifactViewerProps> = ({
 
           <button
             onClick={() => { triggerHaptic(10); setActiveTab('code'); }}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full transition ${
+            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition ${
               activeTab === 'code'
-                ? 'bg-gradient-to-r from-[#4285F4] to-[#9B72CF] text-white shadow-xs'
-                : 'text-[#8e918f] hover:text-[#e3e3e3]'
+                ? 'bg-zinc-800 text-zinc-100 shadow-sm'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             <Code2 className="w-3 h-3" />
@@ -191,16 +191,16 @@ export const ArtifactViewer: React.FC<ArtifactViewerProps> = ({
           {(artifact.type === 'html-preview' || artifact.type === 'svg') && (
             <button
               onClick={() => { triggerHaptic(10); setActiveTab('console'); }}
-              className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full transition ${
+              className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition ${
                 activeTab === 'console'
-                  ? 'bg-gradient-to-r from-[#4285F4] to-[#9B72CF] text-white shadow-xs'
-                  : 'text-[#8e918f] hover:text-[#e3e3e3]'
+                  ? 'bg-zinc-800 text-zinc-100 shadow-sm'
+                  : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               <Terminal className="w-3 h-3" />
               <span>Logs</span>
               {consoleLogs.length > 0 && (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#4285F4]" />
+                <span className="text-[10px] font-mono text-cyan-400">({consoleLogs.length})</span>
               )}
             </button>
           )}

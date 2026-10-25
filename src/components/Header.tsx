@@ -3,13 +3,14 @@ import { LLMModelId, WebGPUStatus } from '../types';
 import { AVAILABLE_MODELS } from '../services/storage';
 import { PWAInstallButton } from './PWAInstallButton';
 import { OfflineIndicator } from './OfflineIndicator';
-import { GeminiSparkle } from './GeminiSparkle';
+import { ComplexityPrism } from './ComplexityPrism';
 import {
   Menu,
   ChevronDown,
   FolderCode,
   SlidersHorizontal,
   HardDrive,
+  Share2,
 } from 'lucide-react';
 import { triggerHaptic } from '../services/storage';
 
@@ -20,6 +21,7 @@ interface HeaderProps {
   onOpenModelManager: () => void;
   onOpenProjectFiles: () => void;
   onOpenSettings: () => void;
+  onShareActiveConversation?: () => void;
   projectFilesCount: number;
   webGPUStatus: WebGPUStatus;
 }
@@ -31,6 +33,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenModelManager,
   onOpenProjectFiles,
   onOpenSettings,
+  onShareActiveConversation,
   projectFilesCount,
   webGPUStatus,
 }) => {
@@ -38,39 +41,39 @@ export const Header: React.FC<HeaderProps> = ({
   const currentModel = AVAILABLE_MODELS.find((m) => m.id === currentModelId) || AVAILABLE_MODELS[0];
 
   return (
-    <header className="h-14 px-3 sm:px-4 bg-[#131314] border-b border-[#3c4043]/40 flex items-center justify-between shrink-0 select-none z-30">
-      {/* Left: Hamburger & Gemini Brand Logo */}
+    <header className="h-14 px-3 sm:px-4 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-800/80 flex items-center justify-between shrink-0 select-none z-30">
+      {/* Left: Hamburger & Complexity Brand Logo */}
       <div className="flex items-center gap-2">
         <button
           onClick={() => { triggerHaptic(10); onToggleSidebar(); }}
-          className="p-2 rounded-full text-[#c4c7c5] hover:text-white hover:bg-[#282a2c] transition active:scale-95"
+          className="p-2 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 transition active:scale-95"
           title="Open drawer menu"
         >
           <Menu className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-2 cursor-pointer" onClick={onToggleSidebar}>
-          <GeminiSparkle className="w-5 h-5 animate-pulse" />
-          <div className="flex items-baseline gap-1.5">
-            <span className="font-semibold text-base sm:text-lg tracking-tight bg-gradient-to-r from-[#4285F4] via-[#9B72CF] to-[#D96570] bg-clip-text text-transparent">
-              Gemini
+        <div className="flex items-center gap-2.5 cursor-pointer" onClick={onToggleSidebar}>
+          <ComplexityPrism className="w-5 h-5 hover:scale-105 transition-transform" size={22} />
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-base tracking-tight text-zinc-100">
+              Complexity
             </span>
-            <span className="text-[10px] text-[#8e918f] font-mono uppercase tracking-wider">
-              Offline
+            <span className="text-[11px] text-zinc-500 font-mono hidden sm:inline">
+              · studio
             </span>
           </div>
         </div>
       </div>
 
-      {/* Center: Gemini Model Dropdown Pill */}
+      {/* Center: Model Selector */}
       <div className="relative">
         <button
           onClick={() => { triggerHaptic(10); setShowModelMenu(!showModelMenu); }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1e1f20] hover:bg-[#282a2c] border border-[#3c4043]/70 text-[#e3e3e3] text-xs font-medium transition active:scale-95 max-w-[170px] sm:max-w-[240px]"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 text-xs font-medium transition active:scale-95 max-w-[180px] sm:max-w-[260px]"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#4285F4] shrink-0" />
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
           <span className="truncate">{currentModel.name}</span>
-          <ChevronDown className="w-3.5 h-3.5 text-[#8e918f] shrink-0" />
+          <ChevronDown className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
         </button>
 
         {showModelMenu && (
@@ -79,9 +82,9 @@ export const Header: React.FC<HeaderProps> = ({
               className="fixed inset-0 z-40"
               onClick={() => setShowModelMenu(false)}
             />
-            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 rounded-2xl bg-[#1e1f20] border border-[#3c4043] p-2 shadow-2xl z-50 text-[#e3e3e3] space-y-1">
-              <div className="px-2.5 py-1 text-[10px] uppercase font-mono text-[#8e918f]">
-                Gemini On-Device Models
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 rounded-xl bg-zinc-900 border border-zinc-800 p-1.5 shadow-2xl z-50 text-zinc-200 space-y-1">
+              <div className="px-2.5 py-1 text-[10px] uppercase font-mono text-zinc-400">
+                Neural & Online Engines
               </div>
               {AVAILABLE_MODELS.map((model) => {
                 const isSelected = model.id === currentModelId;
@@ -93,38 +96,38 @@ export const Header: React.FC<HeaderProps> = ({
                       onSelectModel(model.id);
                       setShowModelMenu(false);
                     }}
-                    className={`w-full text-left p-2.5 rounded-xl text-xs transition flex flex-col gap-0.5 ${
+                    className={`w-full text-left p-2.5 rounded-lg text-xs transition flex flex-col gap-0.5 ${
                       isSelected
-                        ? 'bg-[#282a2c] text-white ring-1 ring-[#9B72CF]/50'
-                        : 'hover:bg-[#282a2c]/60 text-[#c4c7c5]'
+                        ? 'bg-zinc-800 text-white border border-zinc-700/60'
+                        : 'hover:bg-zinc-800/60 text-zinc-300'
                     }`}
                   >
                     <div className="flex items-center justify-between font-medium">
-                      <span className={isSelected ? 'text-[#a8c7fa] font-semibold' : ''}>{model.name}</span>
+                      <span className={isSelected ? 'text-zinc-100 font-semibold' : ''}>{model.name}</span>
                       {model.isBuiltIn ? (
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#131314] text-[#a8c7fa] border border-[#3c4043]/50">
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-950 text-zinc-400 border border-zinc-800">
                           0 MB
                         </span>
                       ) : (
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#131314] text-[#c4c7c5] border border-[#3c4043]/50">
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-950 text-zinc-400 border border-zinc-800">
                           WebGPU
                         </span>
                       )}
                     </div>
-                    <span className="text-[11px] text-[#8e918f] line-clamp-1">
+                    <span className="text-[11px] text-zinc-500 line-clamp-1">
                       {model.tagline}
                     </span>
                   </button>
                 );
               })}
 
-              <div className="pt-1.5 border-t border-[#3c4043]/60">
+              <div className="pt-1.5 border-t border-zinc-800">
                 <button
                   onClick={() => {
                     setShowModelMenu(false);
                     onOpenModelManager();
                   }}
-                  className="w-full text-center py-2 text-xs text-[#a8c7fa] hover:text-[#d3e3fd] font-medium flex items-center justify-center gap-1.5 rounded-lg hover:bg-[#282a2c]"
+                  className="w-full text-center py-2 text-xs text-zinc-300 hover:text-white font-medium flex items-center justify-center gap-1.5 rounded-lg hover:bg-zinc-800"
                 >
                   <HardDrive className="w-3.5 h-3.5" />
                   <span>Model Weights & Storage</span>
@@ -135,19 +138,35 @@ export const Header: React.FC<HeaderProps> = ({
         )}
       </div>
 
-      {/* Right: Actions, Offline Indicator, Project Files, Settings, Install */}
+      {/* Right: Actions, Share, Offline Indicator, Project Files, Settings, Install */}
       <div className="flex items-center gap-1.5 sm:gap-2">
         <OfflineIndicator />
+
+        {onShareActiveConversation && (
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic(10);
+              onShareActiveConversation();
+            }}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-zinc-300 hover:text-zinc-100 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-lg transition"
+            title="Share conversation transcript"
+            aria-label="Share conversation transcript"
+          >
+            <Share2 className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="hidden sm:inline">Share</span>
+          </button>
+        )}
 
         {/* Project Files Toggle Button */}
         <button
           onClick={() => { triggerHaptic(10); onOpenProjectFiles(); }}
-          className="relative p-2 text-[#c4c7c5] hover:text-white hover:bg-[#282a2c] rounded-full transition"
+          className="relative p-2 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 rounded-lg transition"
           title="Project Workspace Files"
         >
           <FolderCode className="w-4 h-4" />
           {projectFilesCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-gradient-to-r from-[#4285F4] to-[#9B72CF] text-[9px] font-mono font-bold text-white flex items-center justify-center">
+            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-cyan-600 text-[9px] font-mono font-bold text-white flex items-center justify-center">
               {projectFilesCount}
             </span>
           )}
@@ -156,8 +175,8 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Settings Button */}
         <button
           onClick={() => { triggerHaptic(10); onOpenSettings(); }}
-          className="p-2 text-[#c4c7c5] hover:text-white hover:bg-[#282a2c] rounded-full transition"
-          title="Gemini Settings"
+          className="p-2 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 rounded-lg transition"
+          title="Complexity Settings"
         >
           <SlidersHorizontal className="w-4 h-4" />
         </button>

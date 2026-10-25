@@ -38,7 +38,8 @@ import { ArtifactViewer } from './components/ArtifactViewer';
 import { ModelManagerModal } from './components/ModelManagerModal';
 import { ProjectFilesModal } from './components/ProjectFilesModal';
 import { SettingsModal } from './components/SettingsModal';
-import { GeminiSparkle } from './components/GeminiSparkle';
+import { ShareTranscriptModal } from './components/ShareTranscriptModal';
+import { ComplexityPrism } from './components/ComplexityPrism';
 import {
   Sparkles,
   MessageCircle,
@@ -46,32 +47,33 @@ import {
   Gamepad2,
   Code2,
   Globe,
+  Compass,
 } from 'lucide-react';
 
 const SUGGESTIONS = [
   {
     icon: Gamepad2,
-    color: 'text-[#34A853]',
+    color: 'text-emerald-400',
     title: 'Minecraft Bedrock Addon',
     prompt: 'Make a Minecraft Bedrock addon mod with a custom Ruby Sword, behavior pack manifest, and custom item components.',
   },
   {
     icon: Globe,
-    color: 'text-[#4285F4]',
+    color: 'text-sky-400',
     title: 'Live Web Research',
     prompt: 'Search the web for the latest updates on space exploration missions this year, and cite sources.',
   },
   {
-    icon: MessageCircle,
-    color: 'text-[#BA68C8]',
-    title: 'Chat & Explore',
-    prompt: 'Explain the difference between quantum physics and classical mechanics in simple terms.',
-  },
-  {
     icon: Code2,
-    color: 'text-[#D96570]',
+    color: 'text-pink-400',
     title: 'Interactive Web App',
     prompt: 'Build a retro arcade game in HTML5 Canvas with smooth touch controls.',
+  },
+  {
+    icon: MessageCircle,
+    color: 'text-purple-400',
+    title: 'Chat & Explore',
+    prompt: 'Hey! Explain the difference between quantum physics and classical mechanics in simple terms.',
   },
 ];
 
@@ -89,6 +91,7 @@ export default function App() {
   const [projectFilesOpen, setProjectFilesOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [activeArtifact, setActiveArtifact] = useState<CodeArtifact | null>(null);
+  const [sharingConversation, setSharingConversation] = useState<Conversation | null>(null);
 
   // Generation state
   const [isGenerating, setIsGenerating] = useState(false);
@@ -107,6 +110,24 @@ export default function App() {
     setCurrentModelId(currentSettings.defaultModelId || 'gemini-online');
 
     if (loadedConvs.length > 0) {
+      // Upgrade any stale default conversation from previous builds to Complexity with grounded sources
+      if (
+        loadedConvs.length === 1 &&
+        loadedConvs[0].id === 'conv-welcome' &&
+        (loadedConvs[0].title.includes('Gemini') ||
+          loadedConvs[0].messages[0]?.content.includes('Gemini') ||
+          !loadedConvs[0].messages[0]?.grounding)
+      ) {
+        const welcomeConv = createWelcomeConversation();
+        setConversations([welcomeConv]);
+        setActiveConvId(welcomeConv.id);
+        saveConversations([welcomeConv]);
+        if (welcomeConv.messages[0]?.artifacts?.[0] && window.innerWidth >= 1024) {
+          setActiveArtifact(welcomeConv.messages[0].artifacts[0]);
+        }
+        return;
+      }
+
       setConversations(loadedConvs);
       const matched = loadedConvs.find((c) => c.id === storedActiveId);
       if (matched) {
@@ -175,16 +196,43 @@ export default function App() {
 
   const handleDeleteConversation = (id: string) => {
     const updated = conversations.filter((c) => c.id !== id);
-    setConversations(updated);
-    saveConversations(updated);
-
-    if (activeConvId === id) {
-      if (updated.length > 0) {
+    if (updated.length > 0) {
+      setConversations(updated);
+      saveConversations(updated);
+      if (activeConvId === id) {
         setActiveConvId(updated[0].id);
-      } else {
-        handleNewConversation();
+        const lastArt = updated[0].messages.flatMap((m) => m.artifacts || []).pop();
+        setActiveArtifact(lastArt && window.innerWidth >= 1024 ? lastArt : null);
       }
+    } else {
+      const freshConv: Conversation = {
+        id: `conv-${Date.now()}`,
+        title: 'New Chat',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        messages: [],
+        modelId: currentModelId,
+      };
+      setConversations([freshConv]);
+      setActiveConvId(freshConv.id);
+      saveConversations([freshConv]);
+      setActiveArtifact(null);
     }
+  };
+
+  const handleClearAllConversations = () => {
+    const freshConv: Conversation = {
+      id: `conv-${Date.now()}`,
+      title: 'New Chat',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      messages: [],
+      modelId: currentModelId,
+    };
+    setConversations([freshConv]);
+    setActiveConvId(freshConv.id);
+    saveConversations([freshConv]);
+    setActiveArtifact(null);
   };
 
   const handleSendMessage = async (text: string, attachedFileIds: string[]) => {
@@ -354,9 +402,13 @@ export default function App() {
         setActiveArtifact(finalParsed.artifacts[0]);
       }
     } catch (err: any) {
+      if (err?.name === 'AbortError' || abortControllerRef.current?.signal.aborted) {
+        // Generation was intentionally stopped by user
+        return;
+      }
       console.error('Inference error:', err);
       updateAssistantMessage(targetConv.id, assistantMsgId, {
-        content: `Error: ${err?.message || 'Failed to complete request'}. Please check your connection or switch to Offline mode.`,
+        content: `Error: ${err?.message || 'Failed to complete request'}. Please try again.`,
       });
     } finally {
       setIsGenerating(false);
@@ -423,9 +475,8 @@ export default function App() {
           setProjectFiles(parsed.projectFiles);
           saveProjectFiles(parsed.projectFiles);
         }
-        alert('Data restored successfully!');
       } catch (err) {
-        alert('Invalid backup JSON format.');
+        console.error('Invalid backup JSON format:', err);
       }
     };
     reader.readAsText(file);
@@ -442,8 +493,8 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#131314] text-[#e3e3e3] font-sans selection:bg-[#9B72CF]/30 selection:text-purple-200">
-      {/* Gemini Sidebar Drawer */}
+    <div className="flex h-screen w-screen overflow-hidden bg-[#0c0d12] text-zinc-100 font-sans selection:bg-cyan-500/20 selection:text-cyan-200">
+      {/* Complexity Sidebar Drawer */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -452,6 +503,8 @@ export default function App() {
         onSelectConversation={handleSelectConversation}
         onNewConversation={handleNewConversation}
         onDeleteConversation={handleDeleteConversation}
+        onShareConversation={(conv) => setSharingConversation(conv)}
+        onClearAllConversations={handleClearAllConversations}
         onOpenModelManager={() => setModelManagerOpen(true)}
         onOpenProjectFiles={() => setProjectFilesOpen(true)}
         onOpenSettings={() => setSettingsOpen(true)}
@@ -469,6 +522,11 @@ export default function App() {
           onOpenModelManager={() => setModelManagerOpen(true)}
           onOpenProjectFiles={() => setProjectFilesOpen(true)}
           onOpenSettings={() => setSettingsOpen(true)}
+          onShareActiveConversation={() => {
+            if (activeConversation) {
+              setSharingConversation(activeConversation);
+            }
+          }}
           projectFilesCount={projectFiles.length}
           webGPUStatus={webGPUStatus}
         />
@@ -493,32 +551,34 @@ export default function App() {
                         setActiveArtifact(art);
                       }}
                       activeArtifactId={activeArtifact?.id}
+                      onQuickAction={(prompt) => handleSendMessage(prompt, [])}
+                      isGenerating={isGenerating}
                     />
                   ))}
                   {isGenerating && (
-                    <div className="flex items-center gap-2 py-3 px-6 text-xs text-[#a8c7fa] font-mono animate-pulse">
-                      <GeminiSparkle className="w-4 h-4 animate-spin" />
-                      <span>Gemini is researching and generating answer...</span>
+                    <div className="flex items-center gap-2 py-3 px-6 text-xs text-zinc-400 font-mono animate-pulse">
+                      <ComplexityPrism className="w-4 h-4" size={16} />
+                      <span>Complexity is synthesizing answer...</span>
                     </div>
                   )}
                   <div ref={chatBottomRef} />
                 </div>
               ) : (
-                /* Gemini Signature Welcome Screen */
+                /* Complexity Workspace Welcome Screen */
                 <div className="h-full flex flex-col justify-center max-w-3xl mx-auto px-4 py-8">
-                  <div className="space-y-2 mb-8">
-                    <div className="flex items-center gap-2">
-                      <GeminiSparkle className="w-8 h-8" />
-                      <span className="text-3xl sm:text-4xl font-semibold tracking-tight bg-gradient-to-r from-[#4285F4] via-[#9B72CF] to-[#D96570] bg-clip-text text-transparent">
-                        Hello, Human
-                      </span>
+                  <div className="space-y-3 mb-8">
+                    <div className="flex items-center gap-3">
+                      <ComplexityPrism className="w-7 h-7" size={28} />
+                      <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-100">
+                        Complexity
+                      </h1>
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-normal text-[#8e918f]">
-                      I'm an all-rounder. What would you like to explore, research, or build today?
-                    </h2>
+                    <p className="text-sm text-zinc-400 max-w-xl leading-relaxed">
+                      All-rounder intelligence engine for grounded web research, Minecraft Bedrock addons, full-stack coding, and open inquiry.
+                    </p>
                   </div>
 
-                  {/* Suggestion Cards Grid */}
+                  {/* Suggestion Prompts Grid - Clean Unboxed Design */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {SUGGESTIONS.map((item, idx) => {
                       const Icon = item.icon;
@@ -529,13 +589,13 @@ export default function App() {
                             triggerHaptic(15);
                             handleSendMessage(item.prompt, []);
                           }}
-                          className="flex flex-col text-left p-4 rounded-2xl bg-[#1e1f20] hover:bg-[#282a2c] border border-[#3c4043]/60 hover:border-[#52565a] transition-all group active:scale-98"
+                          className="flex flex-col text-left p-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800/80 border border-zinc-800 hover:border-zinc-700 transition-colors group active:scale-98"
                         >
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-semibold text-white">{item.title}</span>
-                            <Icon className={`w-4 h-4 ${item.color}`} />
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-xs font-medium text-zinc-200 group-hover:text-white">{item.title}</span>
+                            <Icon className={`w-3.5 h-3.5 ${item.color} opacity-80 group-hover:opacity-100`} />
                           </div>
-                          <p className="text-xs text-[#8e918f] group-hover:text-[#c4c7c5] line-clamp-2 leading-relaxed">
+                          <p className="text-xs text-zinc-400 group-hover:text-zinc-300 line-clamp-2 leading-relaxed">
                             {item.prompt}
                           </p>
                         </button>
@@ -589,6 +649,11 @@ export default function App() {
         settings={settings}
         onSaveSettings={handleSaveSettings}
       />
+
+      <ShareTranscriptModal
+        conversation={sharingConversation}
+        onClose={() => setSharingConversation(null)}
+      />
     </div>
   );
 }
@@ -596,7 +661,7 @@ export default function App() {
 function createWelcomeConversation(): Conversation {
   return {
     id: `conv-welcome`,
-    title: 'Welcome to Gemini',
+    title: 'Welcome to Complexity',
     createdAt: Date.now(),
     updatedAt: Date.now(),
     modelId: 'gemini-online',
@@ -604,20 +669,37 @@ function createWelcomeConversation(): Conversation {
       {
         id: 'msg-welcome',
         role: 'assistant',
-        content: `Hi there! I am **Gemini**, an all-rounder AI connected with **Google Search Grounding** and live web research.
+        content: `Welcome to **Complexity**.
 
-### What I Can Do For You:
-- 🎮 **Minecraft Bedrock Addons & Mods**: I can design complete custom Behavior Packs (BP), Resource Packs (RP), entity JSONs, custom weapons, textures, and Scripting API code.
-- 🌐 **Live Web Research with Sources**: Ask about current events, gaming releases, science, or technology—I will search the web and cite clickable source URLs.
-- 💬 **Conversational All-Rounder**: Chat about philosophy, daily life, creative writing, or brainstorm new ideas.
-- ⚡ **Full Code & Interactive Canvas**: Build and preview interactive web apps, Canvas games, algorithms, or utilities right in the Gemini Canvas.
-- 📱 **Offline Mode Available**: If you ever disconnect, you can switch to **Gemini Nano** for zero-internet on-device intelligence.
+I'm your all-rounder AI assistant, research companion, and developer engine. Here's what we can accomplish:
 
-Ask me anything or try creating a Minecraft Bedrock addon!`,
+- 🎮 **Minecraft Bedrock Addons & Mods**: Complete custom Behavior Packs (BP), Resource Packs (RP), custom items, weapon stats, recipes, and Android installation instructions.
+- 🌐 **Live Web Research with Sources**: Current events, research papers, technology breakthroughs, and science topics with verified source citations.
+- ⚡ **Full Code & Interactive Canvas**: Build and test HTML5 Canvas apps, games, utilities, and scripts in real time.
+- 💬 **Open Inquiry & Problem Solving**: Deep discussions, reasoning, math, philosophy, and creative projects.
+- 📱 **Offline Ready**: Toggle to offline neural engines anytime you need zero-connectivity on-device execution.
+
+What would you like to explore or build?`,
         timestamp: Date.now(),
         tokens: 350,
         tokensPerSec: 52,
-        modelUsed: 'Gemini 3.8 Flash (Online + Search)',
+        modelUsed: 'Complexity Prime (Online + Search)',
+        grounding: {
+          sources: [
+            {
+              title: 'Minecraft Bedrock Creator Documentation — Add-Ons & Custom Items',
+              url: 'https://learn.microsoft.com/en-us/minecraft/creator/documents/itemcreation',
+            },
+            {
+              title: 'MDN Web Docs — HTML5 Canvas & WebGPU Specifications',
+              url: 'https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API',
+            },
+          ],
+          webSearchQueries: [
+            'minecraft bedrock addon creator documentation',
+            'interactive html5 canvas web development',
+          ],
+        },
       },
     ],
   };

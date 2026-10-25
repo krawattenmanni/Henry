@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AppSettings } from '../types';
 import { DEFAULT_SETTINGS } from '../services/storage';
-import { GeminiSparkle } from './GeminiSparkle';
+import { ComplexityPrism } from './ComplexityPrism';
 import {
   X,
   SlidersHorizontal,
@@ -49,19 +49,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-3 sm:p-4 backdrop-blur-xs">
-      <div className="w-full max-w-lg rounded-3xl bg-[#1e1f20] border border-[#3c4043] shadow-2xl overflow-hidden text-[#e3e3e3] flex flex-col max-h-[85vh]">
+      <div className="w-full max-w-lg rounded-xl bg-zinc-900 border border-zinc-800 shadow-2xl overflow-hidden text-zinc-200 flex flex-col max-h-[85vh]">
         {/* Header */}
-        <div className="p-4 border-b border-[#3c4043]/60 flex items-center justify-between shrink-0 bg-[#1e1f20]">
+        <div className="p-4 border-b border-zinc-800 flex items-center justify-between shrink-0 bg-zinc-900">
           <div className="flex items-center gap-2.5">
-            <GeminiSparkle className="w-5 h-5" />
+            <ComplexityPrism className="w-5 h-5" size={20} />
             <div>
-              <h2 className="text-sm font-semibold text-white">Gemini Settings</h2>
-              <p className="text-[11px] text-[#8e918f]">Online web research, models & keyboard preferences</p>
+              <h2 className="text-sm font-semibold text-zinc-100">Complexity Settings</h2>
+              <p className="text-[11px] text-zinc-400">Online web research, models & keyboard preferences</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-[#8e918f] hover:text-white hover:bg-[#282a2c] transition"
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition"
           >
             <X className="w-5 h-5" />
           </button>

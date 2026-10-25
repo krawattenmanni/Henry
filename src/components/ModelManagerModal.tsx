@@ -3,7 +3,7 @@ import { LLMModelId, ModelDownloadProgress, WebGPUStatus } from '../types';
 import { AVAILABLE_MODELS } from '../services/storage';
 import { checkCacheStorageUsage } from '../services/webgpu';
 import { initWebLLMEngine, unloadCurrentModel } from '../services/webllmEngine';
-import { GeminiSparkle } from './GeminiSparkle';
+import { ComplexityPrism } from './ComplexityPrism';
 import {
   X,
   HardDrive,
@@ -97,19 +97,19 @@ export const ModelManagerModal: React.FC<ModelManagerModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-3 sm:p-4 backdrop-blur-xs">
-      <div className="w-full max-w-xl max-h-[90vh] flex flex-col rounded-3xl bg-[#1e1f20] border border-[#3c4043] shadow-2xl overflow-hidden text-[#e3e3e3]">
+      <div className="w-full max-w-xl max-h-[90vh] flex flex-col rounded-xl bg-zinc-900 border border-zinc-800 shadow-2xl overflow-hidden text-zinc-200">
         {/* Header */}
-        <div className="p-4 border-b border-[#3c4043]/60 flex items-center justify-between shrink-0 bg-[#1e1f20]">
+        <div className="p-4 border-b border-zinc-800 flex items-center justify-between shrink-0 bg-zinc-900">
           <div className="flex items-center gap-2.5">
-            <GeminiSparkle className="w-5 h-5" />
+            <ComplexityPrism className="w-5 h-5" size={20} />
             <div>
-              <h2 className="text-sm font-semibold text-white">Gemini On-Device Models</h2>
-              <p className="text-[11px] text-[#8e918f]">Offline neural weights & device storage</p>
+              <h2 className="text-sm font-semibold text-zinc-100">Complexity Neural Engines</h2>
+              <p className="text-[11px] text-zinc-400">Offline neural weights & device storage</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-[#8e918f] hover:text-white hover:bg-[#282a2c] transition"
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -118,23 +118,17 @@ export const ModelManagerModal: React.FC<ModelManagerModalProps> = ({
         {/* Scrollable Body */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
           {/* WebGPU Status Banner */}
-          <div className="p-3.5 rounded-2xl bg-[#131314] border border-[#3c4043] flex items-start justify-between gap-3">
+          <div className="p-3.5 rounded-lg bg-zinc-950 border border-zinc-800 flex items-start justify-between gap-3">
             <div className="flex items-start gap-2.5">
-              <Cpu className={`w-4 h-4 shrink-0 mt-0.5 ${webGPUStatus.supported ? 'text-[#a8c7fa]' : 'text-amber-400'}`} />
+              <Cpu className={`w-4 h-4 shrink-0 mt-0.5 ${webGPUStatus.supported ? 'text-cyan-400' : 'text-amber-400'}`} />
               <div>
                 <div className="flex items-center gap-2 font-medium">
-                  <span className="text-white">Hardware Accelerator</span>
-                  <span
-                    className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
-                      webGPUStatus.supported
-                        ? 'bg-[#1e1f20] text-[#a8c7fa] border border-[#4285F4]/40'
-                        : 'bg-[#282a2c] text-amber-300 border border-amber-800/50'
-                    }`}
-                  >
-                    {webGPUStatus.supported ? 'WebGPU Active' : 'Software Fallback'}
+                  <span className="text-zinc-100">Hardware Accelerator</span>
+                  <span className="text-[11px] font-mono text-zinc-400">
+                    · {webGPUStatus.supported ? 'WebGPU Active' : 'Software Fallback'}
                   </span>
                 </div>
-                <p className="text-[11px] text-[#8e918f] mt-1">
+                <p className="text-[11px] text-zinc-400 mt-0.5">
                   {webGPUStatus.supported
                     ? `${webGPUStatus.adapterName || 'Device GPU'} (${webGPUStatus.vendor || 'Mobile'})`
                     : webGPUStatus.error || 'WebGPU not detected. Using high-speed built-in offline engine.'}

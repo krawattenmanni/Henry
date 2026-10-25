@@ -15,24 +15,24 @@ export const DEFAULT_SETTINGS: AppSettings = {
   maxTokens: 3000,
   developerKeyboardBar: true,
   enableWebSearch: true,
-  systemPrompt: `You are Gemini, a versatile all-rounder AI assistant, research engine, and master developer with live Google Search capabilities. You excel at natural conversations, complex explanations, gaming (especially Minecraft Bedrock addons, mods, behavior packs, resource packs, and scripting), creative writing, math, science, and coding. When the user asks for code, web apps, or Minecraft addons, provide complete, working code and wrap major files into interactive artifacts with filenames. When performing web research, seamlessly integrate facts and cite sources.`,
+  systemPrompt: `You are Complexity, a versatile all-rounder AI assistant, research companion, and master developer with live Google Search capabilities. You excel at natural conversations, complex explanations, gaming (especially Minecraft Bedrock addons, mods, behavior packs, resource packs, and scripting), creative writing, math, science, and coding. When the user asks for code, web apps, or Minecraft addons, provide complete, working code and wrap major files into interactive artifacts with filenames. When performing web research, seamlessly integrate facts and cite sources.`,
 };
 
 export const AVAILABLE_MODELS: ModelInfo[] = [
   {
     id: 'gemini-online',
-    name: 'Gemini 3.8 Flash (Online + Web Search)',
-    tagline: 'Live Web Research • Sources & Citations • All-Rounder',
+    name: 'Complexity Prime (Online + Search)',
+    tagline: 'Live Web Research • Verified Citations • All-Rounder',
     sizeMB: 0,
     vramMB: 0,
     isBuiltIn: false,
     isOnline: true,
-    description: 'Connected with Google Search Grounding. Answers any question, conducts research with live source links, and builds Minecraft Bedrock mods, web apps, and scripts.',
+    description: 'Connected with live Google Search Grounding. Answers any question, conducts research with clickable source links, and builds Minecraft Bedrock mods, web apps, and scripts.',
     recommendedFor: 'Real-time research, Minecraft Bedrock modding, gaming, live events, deep Q&A, and full-stack coding.',
   },
   {
     id: 'builtin-offline-coder',
-    name: 'Gemini Nano (Offline Built-in)',
+    name: 'Complexity Nano (Offline Built-in)',
     tagline: '100% Offline • 0 MB Download • Airplane Mode Ready',
     sizeMB: 0,
     vramMB: 0,
@@ -43,7 +43,7 @@ export const AVAILABLE_MODELS: ModelInfo[] = [
   },
   {
     id: 'qwen2.5-coder-0.5b',
-    name: 'Gemini Qwen Coder 0.5B (WebGPU)',
+    name: 'Complexity Qwen Coder (WebGPU)',
     tagline: '350 MB • Local Neural LLM • Offline Code Engine',
     sizeMB: 350,
     vramMB: 650,
@@ -55,7 +55,7 @@ export const AVAILABLE_MODELS: ModelInfo[] = [
   },
   {
     id: 'smollm2-360m',
-    name: 'Gemini Smol 360M (WebGPU)',
+    name: 'Complexity Smol 360M (WebGPU)',
     tagline: '210 MB • Ultra-compact • Low Battery Usage',
     sizeMB: 210,
     vramMB: 400,
@@ -67,7 +67,7 @@ export const AVAILABLE_MODELS: ModelInfo[] = [
   },
   {
     id: 'llama-3.2-1b',
-    name: 'Gemini Llama 1B (WebGPU)',
+    name: 'Complexity Llama 1B (WebGPU)',
     tagline: '750 MB • Meta Local LLM • Deep Reasoning',
     sizeMB: 750,
     vramMB: 1200,

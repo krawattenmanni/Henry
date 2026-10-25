@@ -54,15 +54,17 @@ export async function runGeminiOnlineInference({
     if (done) break;
 
     buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n\n');
+    const lines = buffer.split(/\r?\n/);
     buffer = lines.pop() || '';
 
     for (const line of lines) {
       const trimmed = line.trim();
-      if (!trimmed.startsWith('data: ')) continue;
+      if (!trimmed.startsWith('data:')) continue;
+      const jsonStr = trimmed.replace(/^data:\s*/, '').trim();
+      if (!jsonStr) continue;
 
       try {
-        const data = JSON.parse(trimmed.slice(6));
+        const data = JSON.parse(jsonStr);
 
         if (data.type === 'delta' && data.text) {
           accumulated += data.text;
@@ -74,6 +76,8 @@ export async function runGeminiOnlineInference({
             webSearchQueries: data.queries || [],
           };
           onGrounding?.(groundingData);
+        } else if (data.type === 'done') {
+          // Stream completed cleanly
         } else if (data.type === 'error') {
           throw new Error(data.error);
         }
