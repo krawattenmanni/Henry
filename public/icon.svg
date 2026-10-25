@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="geminiBg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#1e1f20"/>
+      <stop offset="100%" stop-color="#131314"/>
+    </radialGradient>
+    <linearGradient id="geminiStar" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4285F4"/>
+      <stop offset="30%" stop-color="#9B72CF"/>
+      <stop offset="70%" stop-color="#BA68C8"/>
+      <stop offset="100%" stop-color="#D96570"/>
+    </linearGradient>
+    <filter id="starGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="16" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle -->
+  <rect width="512" height="512" rx="128" fill="url(#geminiBg)"/>
+  <rect x="8" y="8" width="496" height="496" rx="120" fill="none" stroke="#282a2c" stroke-width="4"/>
+
+  <!-- Gemini Star Glow -->
+  <g filter="url(#starGlow)">
+    <!-- Primary 4-point Star -->
+    <path d="M256 70 C256 172 172 256 70 256 C172 256 256 340 256 442 C256 340 340 256 442 256 C340 256 256 172 256 70 Z" fill="url(#geminiStar)"/>
+    <!-- Center white shimmer -->
+    <path d="M256 160 C256 212 212 256 160 256 C212 256 256 300 256 352 C256 300 300 256 352 256 C300 256 256 212 256 160 Z" fill="#ffffff" opacity="0.35"/>
+  </g>
+</svg>

@@ -1,0 +1,6 @@
+{
+  "name": "Kinetix Code — Offline Local LLM for Android",
+  "description": "Complete offline Claude-style coding assistant running local LLMs on-device with WebGPU, interactive code artifacts, mobile developer keyboard, and workspace project manager.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
